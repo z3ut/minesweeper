@@ -2,13 +2,53 @@ const containerElement = document.querySelector('[data-container]');
 const gridElement = document.querySelector<HTMLElement>('[data-grid]');
 
 class Cell {
+
+  public isOpened: boolean;
+  public isMarkedAsBomb: boolean;
+  public numberOfNeighboursWithBombs: number;
+
+  private cellElement: HTMLElement
+
   constructor(public x: number,
     public y: number,
     public isHasBomb: boolean,
-    public isOpened: boolean,
-    public isMarkedAsBomb: boolean,
-    public numberOfNeighboursWithBombs: number,
-    public element: HTMLElement) { }
+    gridElement: HTMLElement,
+    onLeftClick: (cell: Cell) => void,
+    onRightClick: (cell: Cell) => void) {
+    
+    this.cellElement = document.createElement('div');
+    this.cellElement.addEventListener('click', onLeftClick.bind(null, this));
+    this.cellElement.addEventListener('contextmenu', event => {
+      event.preventDefault();
+      onRightClick(this);
+    });
+    this.cellElement.classList.add('cell');
+    this.cellElement.classList.add('closed');
+    this.cellElement.style.order = (y * fieldWidth + x).toString();
+    gridElement.append(this.cellElement);
+  }
+
+  open() {
+    this.isOpened = true;
+    this.cellElement.classList.remove('closed');
+    this.cellElement.classList.add('opened');
+
+    if (this.isHasBomb) {
+      this.cellElement.classList.add('bomb');
+    } else {
+      this.cellElement.innerText = this.numberOfNeighboursWithBombs.toString();
+    }
+  }
+
+  mark() {
+    this.cellElement.classList.toggle('marked');
+    this.isMarkedAsBomb = !this.isMarkedAsBomb;
+  }
+
+  fire() {
+    this.open();
+    this.cellElement.classList.add('fired');
+  }
 }
 
 const fieldWidth = 10;
@@ -21,17 +61,10 @@ const cells: Cell[] = [];
 
 for (let x = 0; x < fieldWidth; x++) {
   for (let y = 0; y < fieldHeight; y++) {
-    const cellElement = document.createElement('div')
-    const isHasBomb = Math.random() < .1;
-    const cell = new Cell(x, y, isHasBomb, false, false, 0, cellElement);
-    cellElement.addEventListener('click', cellClick.bind(null, cell));
-    cellElement.addEventListener('contextmenu', markSellAsBomb.bind(null, cell));
+    const isHasBomb = Math.random() < .05;
+    const cell = new Cell(x, y, isHasBomb, gridElement, cellClick, markSellAsBomb);
     cells.push(cell);
-    cellElement.classList.add('cell');
-    cellElement.classList.add(cell.isOpened ? 'opened' : 'closed');
-    // cellElement.classList.add(cell.isHasBomb ? 'bomb' : '1');
-    cellElement.style.order = (y * fieldWidth + x).toString();
-    gridElement.append(cellElement);
+    
   }
 }
 
@@ -54,19 +87,16 @@ function cellClick(cell: Cell) {
   }
 
   if (cell.isHasBomb) {
-    cell.element.classList.remove('closed');
-    cell.element.classList.add('opened');
-    cell.element.classList.add('bomb');
-    cell.element.classList.add('fired');
+    cell.fire();
     for (let c of cells) {
       if (c.isHasBomb) {
-        c.element.classList.remove('closed');
-        c.element.classList.add('opened');
-        c.element.classList.add('bomb');
+        c.open();
       }
     }
     alert('You lose!');
+    return;
   } else {
+    cell.open();
     openCells(cell, []);
   }
 
@@ -74,35 +104,23 @@ function cellClick(cell: Cell) {
 }
 
 function openCells(cell: Cell, openedCells: Cell[]) {
-  if (cell.isHasBomb) {
-    return;
-  }
-
-  cell.isOpened = true;
-  cell.element.classList.remove('closed');
-  cell.element.classList.add('opened');
-
-  cell.element.innerText = cell.numberOfNeighboursWithBombs.toString();
+  cell.open();
 
   if (cell.numberOfNeighboursWithBombs == 0) {
-    const neighboursWithoutBombs = getNeighbours(cells, cell.x, cell.y)
-      .filter(c => !c.isHasBomb);
-    const cellsToPen = neighboursWithoutBombs
+    const cellsToPen = getNeighbours(cells, cell.x, cell.y)
+      .filter(c => !c.isHasBomb)
       .filter(c => !openedCells.includes(c));
-    const nowOpenedCells = [...openedCells, ...cellsToPen, cell];
-    cellsToPen.forEach(c => openCells(c, nowOpenedCells));
+    cellsToPen.forEach(c => openedCells.push(c));
+    cellsToPen.forEach(c => openCells(c, openedCells));
   }
 }
 
-function markSellAsBomb(cell: Cell, event) {
-  event.preventDefault();
-  cell.element.classList.toggle('marked');
-  cell.isMarkedAsBomb = !cell.isMarkedAsBomb;
+function markSellAsBomb(cell: Cell) {
+  cell.mark();
 }
 
 function checkWin() {
-  if (cells.every(c => c.isOpened ||
-    (!c.isHasBomb && !c.isMarkedAsBomb) ||
+  if (cells.every(c => (c.isOpened && !c.isHasBomb) ||
     (c.isHasBomb && c.isMarkedAsBomb))) {
     alert('You win!');
   }
