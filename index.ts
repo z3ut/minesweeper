@@ -134,9 +134,10 @@ class Board {
 
 const fieldWidth = 10;
 const fieldHeight = 10;
+const cellSize = '1em';
 
-gridElement.style.gridTemplateRows = '1em '.repeat(fieldWidth);
-gridElement.style.gridTemplateColumns = '1em '.repeat(fieldHeight);
+gridElement.style.gridTemplateRows = `repeat(${fieldWidth}, ${cellSize})`;
+gridElement.style.gridTemplateColumns = `repeat(${fieldHeight}, ${cellSize})`;
 
 
 const board = new Board(gridElement, fieldWidth, fieldHeight, 10, win, lose);
