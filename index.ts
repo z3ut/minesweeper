@@ -53,77 +53,99 @@ class Cell {
   }
 }
 
+class Board {
+
+  private cells: Cell[];
+
+  constructor(private gridElement: HTMLElement,
+    private fieldWidth: number,
+    private fieldHeight: number,
+    private numberOfBombs: number,
+    private onWin: () => void,
+    private onLoose: () => void) {
+
+    this.cells = [];
+    for (let x = 0; x < fieldWidth; x++) {
+      for (let y = 0; y < fieldHeight; y++) {
+        const isHasBomb = Math.random() < .05;
+        this.cells.push(new Cell(x, y, isHasBomb, gridElement, this.cellClick.bind(this), this.markCellAsBomb.bind(this)));
+      }
+      for (let cell of this.cells) {
+        cell.numberOfNeighboursWithBombs =
+          this.getNeighbours(this.cells, cell.x, cell.y)
+            .filter(c => c.isHasBomb)
+            .length;
+      }
+    }
+  }
+
+
+  getNeighbours(cells: Cell[], x: number, y: number): Cell[] {
+    return cells.filter(c => Math.abs(c.x - x) <= 1 &&
+      Math.abs(c.y - y) <= 1
+      && (c.x !== x || c.y !== y));
+  }
+  
+  cellClick(cell: Cell) {
+    if (cell.isOpened || cell.isMarkedAsBomb) {
+      return;
+    }
+  
+    if (cell.isHasBomb) {
+      cell.fire();
+      this.openAllBombs();
+      this.onLoose();
+      return;
+    }
+    
+    this.openCells(cell);
+    this.checkWin();
+  }
+  
+  openCells(cell: Cell) {
+    cell.open();
+  
+    if (cell.numberOfNeighboursWithBombs == 0) {
+      const cellsToPen = this.getNeighbours(this.cells, cell.x, cell.y)
+        .filter(c => !c.isOpened && !c.isHasBomb)
+      cellsToPen.forEach(c => this.openCells(c));
+    }
+  }
+  
+  markCellAsBomb(cell: Cell) {
+    cell.mark();
+  }
+  
+  checkWin() {
+    if (this.cells.every(c => (c.isOpened && !c.isHasBomb) ||
+      (c.isHasBomb && c.isMarkedAsBomb))) {
+      this.onWin();
+    }
+  }
+
+  private openAllBombs() {
+    for (let c of this.cells) {
+      if (c.isHasBomb) {
+        c.open();
+      }
+    }
+  }
+}
+
 const fieldWidth = 10;
 const fieldHeight = 10;
 
 gridElement.style.gridTemplateRows = '1em '.repeat(fieldWidth);
 gridElement.style.gridTemplateColumns = '1em '.repeat(fieldHeight);
 
-const cells: Cell[] = [];
 
-for (let x = 0; x < fieldWidth; x++) {
-  for (let y = 0; y < fieldHeight; y++) {
-    const isHasBomb = Math.random() < .05;
-    const cell = new Cell(x, y, isHasBomb, gridElement, cellClick, markSellAsBomb);
-    cells.push(cell);
-    
-  }
+const board = new Board(gridElement, fieldWidth, fieldHeight, 10, win, lose);
+
+
+function win() {
+  alert('You win!');
 }
 
-for (let cell of cells) {
-  cell.numberOfNeighboursWithBombs =
-    getNeighbours(cells, cell.x, cell.y)
-      .filter(c => c.isHasBomb)
-      .length;
-}
-
-function getNeighbours(cells: Cell[], x: number, y: number): Cell[] {
-  return cells.filter(c => Math.abs(c.x - x) <= 1 &&
-    Math.abs(c.y - y) <= 1
-    && (c.x !== x || c.y !== y));
-}
-
-function cellClick(cell: Cell) {
-  if (cell.isOpened || cell.isMarkedAsBomb) {
-    return;
-  }
-
-  if (cell.isHasBomb) {
-    cell.fire();
-    for (let c of cells) {
-      if (c.isHasBomb) {
-        c.open();
-      }
-    }
-    alert('You lose!');
-    return;
-  } else {
-    cell.open();
-    openCells(cell, []);
-  }
-
-  checkWin();
-}
-
-function openCells(cell: Cell, openedCells: Cell[]) {
-  cell.open();
-
-  if (cell.numberOfNeighboursWithBombs == 0) {
-    const cellsToPen = getNeighbours(cells, cell.x, cell.y)
-      .filter(c => !c.isHasBomb)
-      .filter(c => !openedCells.includes(c));
-    cellsToPen.forEach(c => openedCells.push(c));
-    cellsToPen.forEach(c => openCells(c, openedCells));
-  }
-}
-
-function markSellAsBomb(cell: Cell) {
-  cell.mark();
-}
-
-function checkWin() {
-  if (cells.every(c => (c.isOpened && !c.isHasBomb) ||
-    (c.isHasBomb && c.isMarkedAsBomb))) {
-    alert('You win!');
-  }
+function lose() {
+  alert('You lose!');
 }
