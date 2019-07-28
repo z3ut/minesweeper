@@ -12,6 +12,10 @@
   background-color: white;
 }
 
+.cell.closed {
+  background-color: lightgrey;
+}
+
 .bomb {
   background-image: url('assets/bomb.png');
 

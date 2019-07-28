@@ -36,7 +36,9 @@ class Cell {
     if (this.isHasBomb) {
       this.cellElement.classList.add('bomb');
     } else {
-      this.cellElement.innerText = this.numberOfNeighboursWithBombs.toString();
+      if (this.numberOfNeighboursWithBombs) {
+        this.cellElement.innerText = this.numberOfNeighboursWithBombs.toString();
+      }
     }
   }
 
