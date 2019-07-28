@@ -1,6 +1,3 @@
-const containerElement = document.querySelector('[data-container]');
-const gridElement = document.querySelector<HTMLElement>('[data-grid]');
-
 class Cell {
 
   public isOpened: boolean;
@@ -55,6 +52,7 @@ class Cell {
 
 class Board {
 
+  private isLocked = false;
   private cells: Cell[];
 
   constructor(private gridElement: HTMLElement,
@@ -79,15 +77,30 @@ class Board {
     }
   }
 
+  openAllBombs() {
+    for (let c of this.cells) {
+      if (c.isHasBomb) {
+        c.open();
+      }
+    }
+  }
 
-  getNeighbours(cells: Cell[], x: number, y: number): Cell[] {
+  lock() {
+    this.isLocked = true;
+  }
+
+  unlock() {
+    this.isLocked = false;
+  }
+
+  private getNeighbours(cells: Cell[], x: number, y: number): Cell[] {
     return cells.filter(c => Math.abs(c.x - x) <= 1 &&
       Math.abs(c.y - y) <= 1
       && (c.x !== x || c.y !== y));
   }
   
-  cellClick(cell: Cell) {
-    if (cell.isOpened || cell.isMarkedAsBomb) {
+  private cellClick(cell: Cell) {
+    if (this.isLocked || cell.isOpened || cell.isMarkedAsBomb) {
       return;
     }
   
@@ -102,7 +115,7 @@ class Board {
     this.checkWin();
   }
   
-  openCells(cell: Cell) {
+  private openCells(cell: Cell) {
     cell.open();
   
     if (cell.numberOfNeighboursWithBombs == 0) {
@@ -112,41 +125,68 @@ class Board {
     }
   }
   
-  markCellAsBomb(cell: Cell) {
+  private markCellAsBomb(cell: Cell) {
+    if (this.isLocked) {
+      return;
+    }
+
     cell.mark();
   }
   
-  checkWin() {
+  private checkWin() {
     if (this.cells.every(c => (c.isOpened && !c.isHasBomb) ||
       (c.isHasBomb && c.isMarkedAsBomb))) {
       this.onWin();
     }
   }
+}
 
-  private openAllBombs() {
-    for (let c of this.cells) {
-      if (c.isHasBomb) {
-        c.open();
-      }
+
+class Game {
+
+  private board: Board;
+
+  constructor(private gridElement: HTMLElement,
+    private cellSize: string) {
+    
+  }
+
+  createNewGame(fieldWidth: number,
+    fieldHeight: number,
+    numberOfBombs: number) {
+
+    while (this.gridElement.firstChild) {
+      this.gridElement.removeChild(this.gridElement.firstChild);
     }
+    this.gridElement.style.gridTemplateRows = `repeat(${fieldWidth}, ${this.cellSize})`;
+    this.gridElement.style.gridTemplateColumns = `repeat(${fieldHeight}, ${this.cellSize})`;
+    this.board = new Board(gridElement, fieldWidth, fieldHeight, 10, this.win.bind(this), this.lose.bind(this));
+  }
+
+  win() {
+    this.board.lock();
+    alert('You win!');
+  }
+
+  lose() {
+    this.board.lock();
+    alert('You lose!');
   }
 }
+
 
 const fieldWidth = 10;
 const fieldHeight = 10;
 const cellSize = '1em';
 
-gridElement.style.gridTemplateRows = `repeat(${fieldWidth}, ${cellSize})`;
-gridElement.style.gridTemplateColumns = `repeat(${fieldHeight}, ${cellSize})`;
+const containerElement = document.querySelector('[data-container]');
+const gridElement = document.querySelector<HTMLElement>('[data-grid]');
+const newGameBtnElement = document.querySelector<HTMLElement>('[data-new-game-btn]');
+
+let game = new Game(gridElement, cellSize);
+game.createNewGame(fieldWidth, fieldHeight, 10);
 
 
-const board = new Board(gridElement, fieldWidth, fieldHeight, 10, win, lose);
-
-
-function win() {
-  alert('You win!');
-}
-
-function lose() {
-  alert('You lose!');
-}
+newGameBtnElement.addEventListener('click', () => {
+  game.createNewGame(fieldWidth, fieldHeight, 10);
+});
