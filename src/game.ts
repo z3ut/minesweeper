@@ -12,7 +12,7 @@ export class Game {
 
   createNewGame(fieldWidth: number,
     fieldHeight: number,
-    numberOfBombs: number) {
+    bombChances: number) {
 
     this.statusElement.innerText = "";
     while (this.gridElement.firstChild) {
@@ -20,7 +20,7 @@ export class Game {
     }
     this.gridElement.style.gridTemplateRows = `repeat(${fieldWidth}, ${this.cellSize})`;
     this.gridElement.style.gridTemplateColumns = `repeat(${fieldHeight}, ${this.cellSize})`;
-    this.board = new Board(this.gridElement, fieldWidth, fieldHeight, 10, this.win.bind(this), this.lose.bind(this));
+    this.board = new Board(this.gridElement, fieldWidth, fieldHeight, bombChances, this.win.bind(this), this.lose.bind(this));
   }
 
   win() {

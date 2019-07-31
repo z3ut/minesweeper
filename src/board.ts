@@ -8,14 +8,14 @@ export class Board {
   constructor(private gridElement: HTMLElement,
     private fieldWidth: number,
     private fieldHeight: number,
-    private numberOfBombs: number,
+    private bombChances: number,
     private onWin: () => void,
     private onLoose: () => void) {
 
     this.cells = [];
     for (let x = 0; x < fieldWidth; x++) {
       for (let y = 0; y < fieldHeight; y++) {
-        const isHasBomb = Math.random() < .05;
+        const isHasBomb = Math.random() < bombChances;
         const order = (y * fieldWidth + x);
         this.cells.push(new Cell(x, y, order, isHasBomb, gridElement,
           this.cellClick.bind(this), this.markCellAsBomb.bind(this)));

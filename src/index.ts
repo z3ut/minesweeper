@@ -1,22 +1,28 @@
-
 import { Game } from './game';
 
-const fieldWidth = 10;
-const fieldHeight = 10;
 const cellSize = '1em';
 
 const gridElement = document.querySelector<HTMLElement>('[data-grid]');
 const statusElement = document.querySelector<HTMLElement>('[data-status]');
 const gameSizeElement = document.querySelector<HTMLSelectElement>('[data-game-size]');
+const bombChancesElement = document.querySelector<HTMLSelectElement>('[data-bomb-chances]');
 const newGameBtnElement = document.querySelector<HTMLElement>('[data-new-game-btn]');
 
 let game = new Game(gridElement, statusElement, cellSize);
-game.createNewGame(getSelectedGameSize(), getSelectedGameSize(), 10);
+createNewGameWithCurrentSettings();
 
 newGameBtnElement.addEventListener('click', () => {
-  game.createNewGame(getSelectedGameSize(), getSelectedGameSize(), 10);
+  createNewGameWithCurrentSettings();
 });
 
-function getSelectedGameSize() {
+function createNewGameWithCurrentSettings() {
+  game.createNewGame(getSelectedGameSize(), getSelectedGameSize(), getBombChances());
+}
+
+function getSelectedGameSize(): number {
   return +gameSizeElement.value || 10;
+}
+
+function getBombChances(): number {
+  return +bombChancesElement.value || .1;
 }
