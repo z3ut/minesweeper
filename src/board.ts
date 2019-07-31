@@ -13,20 +13,25 @@ export class Board {
     private onLoose: () => void) {
 
     this.cells = [];
+    const gridFragment = document.createDocumentFragment();
+
     for (let x = 0; x < fieldWidth; x++) {
       for (let y = 0; y < fieldHeight; y++) {
         const isHasBomb = Math.random() < bombChances;
         const order = (y * fieldWidth + x);
-        this.cells.push(new Cell(x, y, order, isHasBomb, gridElement,
+        this.cells.push(new Cell(x, y, order, isHasBomb, gridFragment,
           this.cellClick.bind(this), this.markCellAsBomb.bind(this)));
       }
-      for (let cell of this.cells) {
-        cell.numberOfNeighboursWithBombs =
-          this.getNeighbours(this.cells, cell.x, cell.y)
-            .filter(c => c.isHasBomb)
-            .length;
-      }
     }
+
+    for (let cell of this.cells) {
+      cell.numberOfNeighboursWithBombs =
+        this.getNeighbours(this.cells, cell.x, cell.y)
+          .filter(c => c.isHasBomb)
+          .length;
+    }
+
+    gridElement.appendChild(gridFragment);
   }
 
   openAllBombs() {

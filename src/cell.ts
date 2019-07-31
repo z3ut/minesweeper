@@ -10,7 +10,7 @@ export class Cell {
     public y: number,
     public order: number,
     public isHasBomb: boolean,
-    gridElement: HTMLElement,
+    container: DocumentFragment,
     onLeftClick: (cell: Cell) => void,
     onRightClick: (cell: Cell) => void) {
     
@@ -23,7 +23,7 @@ export class Cell {
     this.cellElement.classList.add('cell');
     this.cellElement.classList.add('closed');
     this.cellElement.style.order = order.toString();
-    gridElement.append(this.cellElement);
+    container.append(this.cellElement);
   }
 
   open() {
