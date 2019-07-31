@@ -3,41 +3,49 @@ import { Cell } from './cell';
 export class Board {
 
   private isLocked = false;
-  private cells: Cell[];
+  private cells: {
+    [index: string]: Cell;
+  };
 
-  constructor(private gridElement: HTMLElement,
+  constructor(gridElement: HTMLElement,
     private fieldWidth: number,
     private fieldHeight: number,
-    private bombChances: number,
+    bombChances: number,
     private onWin: () => void,
     private onLoose: () => void) {
 
-    this.cells = [];
+    this.cells = {};
     const gridFragment = document.createDocumentFragment();
 
     for (let x = 0; x < fieldWidth; x++) {
       for (let y = 0; y < fieldHeight; y++) {
         const isHasBomb = Math.random() < bombChances;
         const order = (y * fieldWidth + x);
-        this.cells.push(new Cell(x, y, order, isHasBomb, gridFragment,
+        this.setCell(new Cell(x, y, order, isHasBomb, gridFragment,
           this.cellClick.bind(this), this.markCellAsBomb.bind(this)));
       }
     }
 
-    for (let cell of this.cells) {
-      cell.numberOfNeighboursWithBombs =
-        this.getNeighbours(this.cells, cell.x, cell.y)
-          .filter(c => c.isHasBomb)
-          .length;
+    for (let x = 0; x < fieldWidth; x++) {
+      for (let y = 0; y < fieldHeight; y++) {
+        const cell = this.getCell(x, y);
+        cell.numberOfNeighboursWithBombs =
+          this.getNeighbours(cell.x, cell.y)
+            .filter(c => c.isHasBomb)
+            .length;
+      }
     }
 
     gridElement.appendChild(gridFragment);
   }
 
   openAllBombs() {
-    for (let c of this.cells) {
-      if (c.isHasBomb) {
-        c.open();
+    for (let x = 0; x < this.fieldWidth; x++) {
+      for (let y = 0; y < this.fieldHeight; y++) {
+        const cell = this.getCell(x, y);
+        if (cell.isHasBomb) {
+          cell.open();
+        }
       }
     }
   }
@@ -50,10 +58,26 @@ export class Board {
     this.isLocked = false;
   }
 
-  private getNeighbours(cells: Cell[], x: number, y: number): Cell[] {
-    return cells.filter(c => Math.abs(c.x - x) <= 1 &&
-      Math.abs(c.y - y) <= 1
-      && (c.x !== x || c.y !== y));
+  private getCell(x: number, y: number): Cell {
+    return this.cells[this.generateCellIndex(x, y)];
+  }
+
+  private setCell(cell: Cell) {
+    this.cells[this.generateCellIndex(cell.x, cell.y)] = cell;
+  }
+
+  private generateCellIndex(x: number, y: number) {
+    return `${x}-${y}`;
+  }
+
+  private getNeighbours(x: number, y: number): Cell[] {
+    const indexes = [
+      [ x - 1, y - 1 ], [ x, y - 1 ], [x + 1, y - 1],
+      [ x - 1, y ], [ x + 1, y ],
+      [ x - 1, y + 1 ], [ x, y + 1 ], [ x + 1, y + 1 ]
+    ];
+    return indexes.map(i => this.getCell(i[0], i[1]))
+      .filter(i => i);
   }
   
   private cellClick(cell: Cell) {
@@ -76,7 +100,7 @@ export class Board {
     cell.open();
   
     if (cell.numberOfNeighboursWithBombs == 0) {
-      const cellsToPen = this.getNeighbours(this.cells, cell.x, cell.y)
+      const cellsToPen = this.getNeighbours(cell.x, cell.y)
         .filter(c => !c.isOpened && !c.isHasBomb)
       cellsToPen.forEach(c => this.openCells(c));
     }
@@ -91,9 +115,16 @@ export class Board {
   }
   
   private checkWin() {
-    if (this.cells.every(c => (c.isOpened && !c.isHasBomb) ||
-      (c.isHasBomb && c.isMarkedAsBomb))) {
-      this.onWin();
+    for (let x = 0; x < this.fieldWidth; x++) {
+      for (let y = 0; y < this.fieldHeight; y++) {
+        const cell = this.getCell(x, y);
+        if ((!cell.isOpened && !cell.isMarkedAsBomb) ||
+          (!cell.isOpened && cell.isMarkedAsBomb && !cell.isHasBomb)) {
+          return;
+        }
+      }
     }
+
+    this.onWin();
   }
 }
