@@ -41,8 +41,10 @@ export class Cell {
   }
 
   mark() {
-    this.cellElement.classList.toggle('marked');
-    this.isMarkedAsBomb = !this.isMarkedAsBomb;
+    if (!this.isOpened) {
+      this.cellElement.classList.toggle('marked');
+      this.isMarkedAsBomb = !this.isMarkedAsBomb;
+    }
   }
 
   fire() {
