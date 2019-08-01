@@ -28,6 +28,8 @@ export class Cell {
 
   open() {
     this.isOpened = true;
+    this.isMarkedAsBomb = false;
+    this.cellElement.classList.remove('marked');
     this.cellElement.classList.remove('closed');
     this.cellElement.classList.add('opened');
 
