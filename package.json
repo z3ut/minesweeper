@@ -1,8 +1,10 @@
 {
   "scripts": {
-    "start": "parcel ./src/index.html"
+    "start": "parcel ./src/index.html",
+    "build": "parcel build --no-content-hash --no-source-maps src/index.html -d docs --public-url /minesweeper/"
   },
   "devDependencies": {
+    "cssnano": "^4.1.10",
     "sass": "^1.22.7",
     "typescript": "^3.5.3"
   }
