@@ -8,23 +8,37 @@
   <link rel="stylesheet" href="index.scss">
 </head>
 <body>
+  <p class="controls">
+    <label>
+      Field size:
+      <select data-game-size>
+        <option>10</option>
+        <option>20</option>
+        <option>30</option>
+        <option>50</option>
+        <option>100</option>
+      </select>
+    </label>
+    
+    <label>
+      Bomb chances:
+      <select data-bomb-chances>
+        <option>.05</option>
+        <option>.1</option>
+        <option>.2</option>
+        <option>.3</option>
+        <option>.4</option>
+      </select>
+    </label>
+
+    <button data-new-game-btn>New Game</button>
+  </p>
+
   <p data-status class="status"></p>
-  <div data-grid class="grid"></div>
-  <select data-game-size>
-    <option>10</option>
-    <option>20</option>
-    <option>30</option>
-    <option>50</option>
-    <option>100</option>
-  </select>
-  <select data-bomb-chances>
-    <option>.05</option>
-    <option>.1</option>
-    <option>.2</option>
-    <option>.3</option>
-    <option>.4</option>
-  </select>
-  <button data-new-game-btn>New Game</button>
+
+  <div class="grid-container">
+    <div data-grid class="grid"></div>
+  </div>
   
   <script src="index.ts"></script>
 </body>

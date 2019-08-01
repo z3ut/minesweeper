@@ -1,11 +1,29 @@
-.status {
-  height: 2em;
+.controls {
   margin: 0;
+  text-align: center;
+
+  label + label,
+  label + button {
+    margin-left: 1em;
+  }
+}
+
+.grid-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status {
+  height: 1.5em;
+  margin: 0;
+  text-align: center;
+  font-weight: 700;
 }
 
 .grid {
   display: inline-grid;
-  border: 2px solid yellow;
+  border: 2px solid black;
 
   grid-gap: 1px;
   background-color: grey;
@@ -26,7 +44,6 @@
 
 .bomb {
   background-image: url('assets/bomb.png');
-
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
