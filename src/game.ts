@@ -18,18 +18,28 @@ export class Game {
     while (this.gridElement.firstChild) {
       this.gridElement.removeChild(this.gridElement.firstChild);
     }
-    this.gridElement.style.gridTemplateRows = `repeat(${fieldWidth}, ${this.cellSize})`;
-    this.gridElement.style.gridTemplateColumns = `repeat(${fieldHeight}, ${this.cellSize})`;
-    this.board = new Board(this.gridElement, fieldWidth, fieldHeight, bombChances, this.win.bind(this), this.lose.bind(this));
+
+    this.gridElement.style.gridTemplateRows =
+      `repeat(${fieldWidth}, ${this.cellSize})`;
+
+    this.gridElement.style.gridTemplateColumns =
+      `repeat(${fieldHeight}, ${this.cellSize})`;
+
+    this.board = new Board(this.gridElement, fieldWidth, fieldHeight,
+      bombChances, this.win.bind(this), this.lose.bind(this));
   }
 
   win() {
     this.board.lock();
-    this.statusElement.innerText = "You win!";
+    this.setStatusText('You win!');
   }
 
   lose() {
     this.board.lock();
-    this.statusElement.innerText = "You lose!";
+    this.setStatusText('You lose!');
+  }
+
+  private setStatusText(text: string) {
+    this.statusElement.innerText = text;
   }
 }

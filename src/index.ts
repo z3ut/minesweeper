@@ -1,6 +1,6 @@
 import { Game } from './game';
 
-const cellSize = '1em';
+const cellSize = '2em';
 
 const gridElement = document.querySelector<HTMLElement>('[data-grid]');
 const statusElement = document.querySelector<HTMLElement>('[data-status]');

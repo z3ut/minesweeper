@@ -51,4 +51,17 @@ export class Cell {
     this.open();
     this.cellElement.classList.add('fired');
   }
+
+  setNumberOfNeighboursWithBombs(numberOfNeighboursWithBombs: number) {
+    this.numberOfNeighboursWithBombs = numberOfNeighboursWithBombs;
+
+    if (this.numberOfNeighboursWithBombs > 0) {
+      this.cellElement.classList.add(
+        this.generateNeighboursBombsClass(numberOfNeighboursWithBombs));
+    }
+  }
+
+  private generateNeighboursBombsClass(numberOfNeighboursWithBombs: number) {
+    return `neighbours-bombs-${this.numberOfNeighboursWithBombs}`;
+  }
 }

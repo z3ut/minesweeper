@@ -12,9 +12,12 @@
 }
 
 .cell {
-  width: 1em;
-  height: 1em;
   background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size-adjust: 0.75;
 }
 
 .cell.closed {
@@ -43,4 +46,31 @@
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+}
+
+.cell {
+  &.neighbours-bombs-1 {
+    color: blue;
+  }
+  &.neighbours-bombs-2 {
+    color: green;
+  }
+  &.neighbours-bombs-3 {
+    color: red;
+  }
+  &.neighbours-bombs-4 {
+    color: darkblue;
+  }
+  &.neighbours-bombs-5 {
+    color: crimson;
+  }
+  &.neighbours-bombs-6 {
+    color: lightgreen;
+  }
+  &.neighbours-bombs-7 {
+    color: black;
+  }
+  &.neighbours-bombs-8 {
+    color: black;
+  }
 }

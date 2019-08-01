@@ -29,10 +29,10 @@ export class Board {
     for (let x = 0; x < fieldWidth; x++) {
       for (let y = 0; y < fieldHeight; y++) {
         const cell = this.getCell(x, y);
-        cell.numberOfNeighboursWithBombs =
+        cell.setNumberOfNeighboursWithBombs(
           this.getNeighbours(cell.x, cell.y)
             .filter(c => c.isHasBomb)
-            .length;
+            .length);
       }
     }
 
@@ -112,6 +112,7 @@ export class Board {
     }
 
     cell.mark();
+    this.checkWin();
   }
   
   private checkWin() {
@@ -120,6 +121,7 @@ export class Board {
         const cell = this.getCell(x, y);
         if ((!cell.isOpened && !cell.isMarkedAsBomb) ||
           (!cell.isOpened && cell.isMarkedAsBomb && !cell.isHasBomb)) {
+            console.log(cell);
           return;
         }
       }
